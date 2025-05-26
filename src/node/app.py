@@ -1,5 +1,11 @@
 from fastapi import FastAPI
-from zexfrost.custom_types import SharePackage, SigningData, SignRequest
+from zexfrost.custom_types import (
+    HexStr,
+    SharePackage,
+    SigningData,
+    SignRequest,
+    SignTweakRequest,
+)
 from zexfrost.node.party import set_party
 from zexfrost.node.repository import (
     get_key_repository,
@@ -42,8 +48,24 @@ async def sign(sign_request: SignRequest):
         key_repo=get_key_repository(),
         nonce_repo=get_nonce_repository(),
         commitments=sign_request.commitments,
-        tweak_by=sign_request.tweak_by,
     )
+
+
+@sign_router.post("/sign-tweak", response_model=dict[HexStr, SharePackage])
+async def sign_with_teak(sign_request: SignTweakRequest):
+    result = {}
+    for tweak_by, sign_data in sign_request.data.items():
+        result[tweak_by] = signature_sign(
+            curve=get_curve(sign_request.curve),
+            node_id=settings.ID,
+            message=data_to_bytes(sign_data),
+            pubkey_package=sign_request.pubkey_package,
+            key_repo=get_key_repository(),
+            nonce_repo=get_nonce_repository(),
+            commitments=sign_request.commitments,
+            tweak_by=tweak_by,
+        )
+    return result
 
 
 app = create_app()

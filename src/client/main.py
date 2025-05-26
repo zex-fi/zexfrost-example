@@ -18,12 +18,11 @@ async def main(sa: SA):
     message = "hello"
     tweak_by = b"tweak"
     commitments = await sa.commitment(tweak_by.hex())
-    signature = await sa.sign(
-        route="sign/sign",
-        data=SigningData(data={"message": message}),
+    signature = await sa.sign_with_tweak(
+        route="sign/sign-tweak",
+        data={tweak_by.hex(): SigningData(data={"message": message})},
         commitments=commitments,
-        tweak_by=tweak_by.hex(),
-        message=message.encode(),
+        message={tweak_by.hex(): message.encode()},
     )
     print(signature)
 

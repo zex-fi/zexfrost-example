@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  node1:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - NODE__ID=0000000000000000000000000000000000000000000000000000000000000001
+      - NODE__PRIVATE_KEY=966495e63910b92f3ea952ec2bda1f4541eef4798ffc1c2e385f4e99f734eb0d
+    ports:
+      - "8001:8000"
+    volumes:
+      - node1_data:/app/data
+    command: gunicorn src.node.app:app -k uvicorn.workers.UvicornWorker -w1 -b 0.0.0.0:8000
+    restart: unless-stopped
+
+  node2:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - NODE__ID=0000000000000000000000000000000000000000000000000000000000000002
+      - NODE__PRIVATE_KEY=966495e63910b92f3ea952ec2bda1f4541eef4798ffc1c2e385f4e99f734eb0d
+    ports:
+      - "8002:8000"
+    volumes:
+      - node2_data:/app/data
+    command: gunicorn src.node.app:app -k uvicorn.workers.UvicornWorker -w1 -b 0.0.0.0:8000
+    restart: unless-stopped
+
+  node3:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - NODE__ID=0000000000000000000000000000000000000000000000000000000000000003
+      - NODE__PRIVATE_KEY=966495e63910b92f3ea952ec2bda1f4541eef4798ffc1c2e385f4e99f734eb0d
+    ports:
+      - "8003:8000"
+    volumes:
+      - node3_data:/app/data
+    command: gunicorn src.node.app:app -k uvicorn.workers.UvicornWorker -w1 -b 0.0.0.0:8000
+    restart: unless-stopped
+
+volumes:
+  node1_data:
+  node2_data:
+  node3_data:

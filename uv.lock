@@ -636,8 +636,8 @@ wheels = [
 
 [[package]]
 name = "zexfrost"
-version = "0.6.1"
-source = { git = "https://github.com/zex-fi/zexfrost#a93fa5b23d8bfec8026523b73d32f8eb25939aae" }
+version = "0.7.0"
+source = { git = "https://github.com/zex-fi/zexfrost#db586f8392b4c28e927a6e8782dd0c2ac0cf69de" }
 dependencies = [
     { name = "cryptography" },
     { name = "fastapi" },

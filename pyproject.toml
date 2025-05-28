@@ -14,8 +14,6 @@ dependencies = [
 [dependency-groups]
 dev = ["pyright>=1.1.394", "ruff>=0.9.6"]
 
-[tool.uv.sources]
-zexfrost = { git = "https://github.com/zex-fi/zexfrost" }
 
 [tool.ruff]
 exclude = [
@@ -59,3 +57,6 @@ convention = "google"
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
+
+[tool.uv.sources]
+zexfrost = { git = "https://github.com/zex-fi/zexfrost" }

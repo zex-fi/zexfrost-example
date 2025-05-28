@@ -5,7 +5,7 @@ import os
 from frost_lib import secp256k1_tr
 from zexfrost.client.dkg import DKG
 from zexfrost.client.sa import SA
-from zexfrost.custom_types import PublicKeyPackage
+from zexfrost.custom_types import PublicKeyPackage, UserSigningData
 
 from src.shared.party import party
 from src.shared.repository import Repo
@@ -48,13 +48,11 @@ async def dkg_main(dkg: DKG) -> PublicKeyPackage:
 
 
 async def main(sa: SA):
-    tweak_by = b"salt"
-    data = {"message": "message"}
-    signature = await sa.sign_with_tweak(
-        route="sign/sign-tweak",
-        data={tweak_by.hex(): {"1": data, "2": data}},
-        message={tweak_by.hex(): {"1": b"message", "2": b"message"}},
-    )
+    data = {
+        "1": UserSigningData(tweak_by=b"hello".hex(), data={"message": "message"}, message=b"message"),
+        "2": UserSigningData(tweak_by=b"hello".hex(), data={"message": "message"}, message=b"message"),
+    }
+    signature = await sa.sign("sign/sign", data)
     print(signature)
 
 

@@ -1,7 +1,5 @@
-from collections import defaultdict
-
 from fastapi import FastAPI
-from zexfrost.custom_types import DataID, SharePackage, SignRequest, SignTweakRequest, TweakBy
+from zexfrost.custom_types import SharePackage, SignatureID, SigningData, SigningResponse
 from zexfrost.node.party import set_party
 from zexfrost.node.repository import (
     get_key_repository,
@@ -34,35 +32,21 @@ def data_to_bytes(data: dict) -> bytes:
     return data["message"].encode()
 
 
-@sign_router.post("/sign", response_model=SharePackage)
-async def sign(sign_request: SignRequest):
-    return signature_sign(
-        curve=get_curve(sign_request.curve),
-        node_id=settings.ID,
-        message=data_to_bytes(sign_request.data),
-        pubkey_package=sign_request.pubkey_package,
-        key_repo=get_key_repository(),
-        nonce_repo=get_nonce_repository(),
-        commitments=sign_request.commitments,
-    )
-
-
-@sign_router.post("/sign-tweak", response_model=dict[TweakBy, dict[DataID, SharePackage]])
-async def sign_with_teak(sign_request: SignTweakRequest):
-    result = defaultdict(dict)
-    for tweak_by, sign_data in sign_request.data.items():
-        for data_id, data in sign_data.items():
-            result[tweak_by][data_id] = signature_sign(
-                curve=get_curve(sign_request.curve),
-                node_id=settings.ID,
-                message=data_to_bytes(data),
-                pubkey_package=sign_request.pubkey_package,
-                key_repo=get_key_repository(),
-                nonce_repo=get_nonce_repository(),
-                commitments=sign_request.commitments[tweak_by][data_id],
-                tweak_by=tweak_by,
-            )
-    return result
+@sign_router.post("/sign", response_model=dict[SignatureID, SharePackage])
+async def sign(sign_request: dict[SignatureID, SigningData]) -> SigningResponse:
+    resp = {}
+    for sig_id, sig_data in sign_request.items():
+        resp[sig_id] = signature_sign(
+            curve=get_curve(sig_data.curve),
+            node_id=settings.ID,
+            message=data_to_bytes(sig_data.data),
+            pubkey_package=sig_data.pubkey_package,
+            key_repo=get_key_repository(),
+            nonce_repo=get_nonce_repository(),
+            commitments=sig_data.commitments,
+            tweak_by=sig_data.tweak_by,
+        )
+    return resp
 
 
 app = create_app()

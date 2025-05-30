@@ -14,15 +14,15 @@ from zexfrost.node.sign import sign as signature_sign
 from zexfrost.utils import get_curve
 
 from src.shared.party import party
-from src.shared.repository import Repo
+from src.shared.repository import RedisRepo
 
 
 def create_app() -> FastAPI:
     app = FastAPI()
     set_party(party)
-    set_dkg_repository(Repo())
-    set_key_repository(Repo())
-    set_nonce_repository(Repo())
+    set_dkg_repository(RedisRepo())  # type: ignore
+    set_key_repository(RedisRepo())
+    set_nonce_repository(RedisRepo())
     app.include_router(dkg_router)
     app.include_router(sign_router)
     return app

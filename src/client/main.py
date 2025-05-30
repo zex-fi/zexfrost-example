@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 
-from frost_lib import secp256k1_tr
+from frost_lib import ed25519
 from zexfrost.client.dkg import DKG
 from zexfrost.client.sa import SA
 from zexfrost.custom_types import PublicKeyPackage, UserSigningData
@@ -48,9 +48,13 @@ async def dkg_main(dkg: DKG) -> PublicKeyPackage:
 
 
 async def main(sa: SA):
+    # data = {
+    #     "1": UserSigningData(tweak_by=b"hello", data={"message": "message"}, message=b"message"),
+    #     "2": UserSigningData(tweak_by=b"hello", data={"message": "message"}, message=b"message"),
+    # }
     data = {
-        "1": UserSigningData(tweak_by=b"hello".hex(), data={"message": "message"}, message=b"message"),
-        "2": UserSigningData(tweak_by=b"hello".hex(), data={"message": "message"}, message=b"message"),
+        "1": UserSigningData(data={"message": "message"}, message=b"message"),
+        "2": UserSigningData(data={"message": "message"}, message=b"message"),
     }
     signature = await sa.sign("sign/sign", data)
     print(signature)
@@ -59,7 +63,7 @@ async def main(sa: SA):
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     dkg = DKG(
-        curve=secp256k1_tr,
+        curve=ed25519,
         party=party,
         max_signers=3,
         min_singers=2,
@@ -69,7 +73,7 @@ if __name__ == "__main__":
     task = loop.create_task(dkg_main(dkg))
     pubkey_package = loop.run_until_complete(task)
     sa = SA(
-        curve=secp256k1_tr,
+        curve=ed25519,
         party=party,
         pubkey_package=pubkey_package,
         loop=loop,

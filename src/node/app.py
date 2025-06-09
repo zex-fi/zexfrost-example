@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from zexfrost.custom_types import SharePackage, SignatureID, SigningData, SigningResponse
+from zexfrost.custom_types import SigningRequest, SigningResponse
 from zexfrost.node.party import set_party
 from zexfrost.node.repository import (
     get_key_repository,
@@ -32,10 +32,10 @@ def data_to_bytes(data: dict) -> bytes:
     return data["message"].encode()
 
 
-@sign_router.post("/sign", response_model=dict[SignatureID, SharePackage])
-async def sign(sign_request: dict[SignatureID, SigningData]) -> SigningResponse:
+@sign_router.post("/sign", response_model=SigningResponse)
+async def sign(sign_request: SigningRequest) -> SigningResponse:
     resp = {}
-    for sig_id, sig_data in sign_request.items():
+    for sig_id, sig_data in sign_request.signings_data.items():
         resp[sig_id] = signature_sign(
             curve=get_curve(sig_data.curve),
             node_id=settings.ID,

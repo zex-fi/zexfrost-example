@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
     app = FastAPI()
     set_party(party)
     set_dkg_repository(RedisRepo())  # type: ignore
-    set_key_repository(RedisRepo())
+    set_key_repository(RedisRepo(logging=True))
     set_nonce_repository(RedisRepo())
     app.include_router(dkg_router)
     app.include_router(sign_router)
@@ -37,10 +37,10 @@ async def sign(sign_request: SigningRequest) -> SigningResponse:
     resp = {}
     for sig_id, sig_data in sign_request.signings_data.items():
         resp[sig_id] = signature_sign(
-            curve=get_curve(sig_data.curve),
+            curve=get_curve(sign_request.curve),
             node_id=settings.ID,
             message=data_to_bytes(sig_data.data),
-            pubkey_package=sig_data.pubkey_package,
+            pubkey_package=sign_request.pubkey_package,
             key_repo=get_key_repository(),
             nonce_repo=get_nonce_repository(),
             commitments=sig_data.commitments,

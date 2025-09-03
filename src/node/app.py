@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
 
 
 def data_to_bytes(data: dict) -> bytes:
-    return data["message"].encode()
+    return bytes.fromhex(data["message"])
 
 
 @sign_router.post("/sign", response_model=SigningResponse)
